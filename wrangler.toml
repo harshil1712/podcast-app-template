@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "puddlecat-template"
+name = "puddlecast-template"
 compatibility_date = "2024-12-05"
 main = "./server.ts"
 assets = { directory = "./build/client" }
@@ -9,3 +9,7 @@ assets = { directory = "./build/client" }
 # Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
 [observability]
 enabled = true
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "puddlecast"
