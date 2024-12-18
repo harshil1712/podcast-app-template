@@ -13,3 +13,7 @@ enabled = true
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "puddlecast"
+
+[[kv_namespaces]]
+binding = "admin"
+id = "d024427f6a7842568ef0093ebed6ff2c"

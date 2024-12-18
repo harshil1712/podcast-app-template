@@ -1,5 +1,5 @@
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import type { LoaderFunction, ActionFunction } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Link } from "@remix-run/react";
@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async () => {
     // Add more episodes
   ];
 
-  return json({ episodes });
+  return Response.json({ episodes });
 };
 
 export const action: ActionFunction = async ({ request }) => {

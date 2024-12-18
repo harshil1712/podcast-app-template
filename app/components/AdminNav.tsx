@@ -1,5 +1,5 @@
-import { Link, useLocation } from "@remix-run/react";
-import { LayoutGrid, Mic, Settings, BarChart } from "lucide-react";
+import { Link, useLocation, Form } from "@remix-run/react";
+import { LayoutGrid, Mic, Settings, BarChart, LogOut } from "lucide-react";
 
 export default function AdminNav() {
   const location = useLocation();
@@ -32,6 +32,15 @@ export default function AdminNav() {
             <span>{label}</span>
           </Link>
         ))}
+        <Form method="post" action="/logout">
+          <button
+            type="submit"
+            className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </Form>
       </div>
     </nav>
   );

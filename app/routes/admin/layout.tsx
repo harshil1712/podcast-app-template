@@ -1,11 +1,12 @@
 import { isRouteErrorResponse, Outlet, useRouteError } from "@remix-run/react";
 import { LoaderFunction } from "@remix-run/node";
 import AdminNav from "~/components/AdminNav";
-// import { requireAdmin } from "~/lib/auth.server";
+import { AdminAuth } from "~/services/auth.server";
 
-// export const loader: LoaderFunction = async ({ request }) => {
-//   // return await requireAdmin(request);
-// };
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const auth = new AdminAuth(context);
+  return await auth.requireAdmin(request);
+};
 
 export default function AdminLayout() {
   return (
