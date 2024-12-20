@@ -12,7 +12,6 @@ interface Episode {
   thumbnail: string;
   duration: string;
   publishedAt: string;
-  hosts: string[];
   audioUrl: string;
   transcript: {
     id: string;
@@ -36,7 +35,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     thumbnail: "/api/placeholder/1200/600",
     duration: "45 min",
     publishedAt: "2024-12-15T00:00:00.000Z",
-    hosts: ["John Doe", "Jane Smith"],
     audioUrl: "/path/to/audio.mp3",
     transcript: [
       {
@@ -106,10 +104,6 @@ export default function EpisodeDetail() {
                 <Clock size={20} />
                 <span>{episode.duration}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <User size={20} />
-                <span>{episode.hosts.join(", ")}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -140,26 +134,6 @@ export default function EpisodeDetail() {
                 <button className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                   Download
                 </button>
-              </div>
-            </div>
-
-            {/* Host Info */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">About the Hosts</h2>
-              <div className="space-y-4">
-                {episode.hosts.map((host) => (
-                  <div key={host} className="flex items-center gap-4">
-                    <img
-                      src="/api/placeholder/40/40"
-                      alt={host}
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{host}</h3>
-                      <p className="text-sm text-gray-500">Host</p>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
 

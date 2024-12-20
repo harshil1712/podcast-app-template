@@ -2,7 +2,9 @@ import type { ActionFunction } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import { useActionData } from "@remix-run/react";
 import EpisodeForm from "~/components/EpisodeForm";
-// import { requireAdmin } from "~/lib/auth.server";
+import { AdminAuth } from "~/services/auth.server";
+import { R2Service } from "~/utils/r2.server";
+import { D1Service } from "~/utils/db.server";
 
 interface ActionData {
   errors?: {
@@ -10,19 +12,22 @@ interface ActionData {
     description?: string;
     audio?: string;
     thumbnail?: string;
-    hosts?: string;
   };
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  // await requireAdmin(request);
+export const action: ActionFunction = async ({ request, context }) => {
+  const auth = new AdminAuth(context);
+  await auth.requireAdmin(request);
+
+  const r2 = new R2Service(context.cloudflare.env.BUCKET);
+  const db = new D1Service(context.cloudflare.env.DB);
 
   const formData = await request.formData();
-  const title = formData.get("title");
-  const description = formData.get("description");
-  const hosts = formData.get("hosts");
-  const audio = formData.get("audio");
-  const thumbnail = formData.get("thumbnail");
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const audio = formData.get("audio") as File;
+  const thumbnail = formData.get("thumbnail") as File;
+  const duration = formData.get("duration") || 0;
 
   const errors: ActionData["errors"] = {};
 
@@ -32,10 +37,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (!description || typeof description !== "string") {
     errors.description = "Description is required";
-  }
-
-  if (!hosts || typeof hosts !== "string") {
-    errors.hosts = "Hosts are required";
   }
 
   if (!audio) {
@@ -51,14 +52,24 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   try {
-    // Here you would:
-    // 1. Upload the audio file to R2
-    // 2. Upload the thumbnail to R2
-    // 3. Create the episode record in your database
-    // 4. Process the audio file with Workers AI for transcription
+    // Upload the audio file to R2
+    const audioObject = await r2.uploadAudio(audio);
+
+    // Upload the thumbnail to R2
+    const thumbnailObject = await r2.uploadImage(thumbnail);
+
+    // Save the episode to the database
+    await db.createEpisode({
+      title,
+      description,
+      audioKey: audioObject.key,
+      thumbnailKey: thumbnailObject.key,
+      duration: Number(duration),
+    });
 
     return redirect("/admin/episodes");
   } catch (error) {
+    console.log(error);
     return Response.json(
       { errors: { title: "Failed to create episode" } },
       { status: 500 }

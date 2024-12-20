@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { Play, Users, Clock, TrendingUp } from "lucide-react";
+import { D1Service } from "~/utils/db.server";
 
 interface DashboardStats {
   totalEpisodes: number;
@@ -9,9 +10,13 @@ interface DashboardStats {
   growth: string;
 }
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ context }) => {
+  const db = new D1Service(context.cloudflare.env.DB);
+  const totalEpisodes = await db.getTotalEpisodes();
+
+  // To Do: Implement tracking logic to get other stats
   const stats: DashboardStats = {
-    totalEpisodes: 25,
+    totalEpisodes: totalEpisodes,
     totalListeners: 1234,
     totalListeningTime: "3,456 hours",
     growth: "+12.5%",
