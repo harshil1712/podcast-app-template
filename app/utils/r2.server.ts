@@ -12,7 +12,7 @@ export interface R2Object {
 export class R2Service {
   constructor(
     private readonly bucket: R2Bucket,
-    private readonly baseUrl?: string
+    private readonly publicUrl?: string
   ) {}
 
   async uploadAudio(audio: File): Promise<R2Object> {
@@ -71,7 +71,6 @@ export class R2Service {
 
     return {
       key,
-      url: `${this.baseUrl}/${key}`,
       size: image.size,
     };
   }
@@ -85,17 +84,7 @@ export class R2Service {
     }
   }
 
-  async generatePresignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    // Note: Standard R2 doesn't support presigned URLs directly
-    // This is a simplified example using a time-based token
-    const timestamp = Math.floor(Date.now() / 1000) + expiresIn;
-    const token = await this.generateToken(key, timestamp);
-    return `${this.baseUrl}/stream/${token}/${key}`;
-  }
-
-  private async generateToken(key: string, timestamp: number): Promise<string> {
-    // Implement your token generation logic here
-    // This should match your Worker's validation logic
-    return "token";
+  getImageUrl(key: string) {
+    return `${this.publicUrl}/${key}`;
   }
 }

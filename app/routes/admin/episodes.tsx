@@ -6,20 +6,8 @@ import { Link } from "@remix-run/react";
 import { D1Service } from "~/utils/db.server";
 import { AdminAuth } from "~/services/auth.server";
 import { R2Service } from "~/utils/r2.server";
-
-const formatDuration = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-const formatDate = (date: string | Date) => {
-  return new Date(date).toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
+import { formatDate, formatDuration } from "~/utils/helpers";
+import { Episode } from "~/types";
 
 export const loader: LoaderFunction = async ({ context }) => {
   const db = new D1Service(context.cloudflare.env.DB);
@@ -75,7 +63,7 @@ export const action: ActionFunction = async ({ request, context }) => {
 };
 
 export default function AdminEpisodes() {
-  const { episodes } = useLoaderData();
+  const { episodes } = useLoaderData<{ episodes: Episode[] }>();
 
   return (
     <div className="p-8">

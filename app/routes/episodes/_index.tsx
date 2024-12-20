@@ -2,7 +2,8 @@ import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import PodcastCard from "~/components/PodcastCard";
 import Pagination from "~/components/Pagination";
-import Layout from "~/components/Layout";
+import { Episode } from "~/types";
+import { D1Service } from "~/utils/db.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,89 +16,29 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-interface Episode {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  publishedAt: string;
-  category: string;
-}
-
 interface LoaderData {
   episodes: Episode[];
-  categories: string[];
-  currentPage: number;
-  totalPages: number;
-  currentCategory?: string;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get("page") ?? "1");
-  const category = url.searchParams.get("category") ?? undefined;
-  const sort = url.searchParams.get("sort") ?? "newest";
+export const loader: LoaderFunction = async ({ request, context }) => {
+  // const url = new URL(request.url);
+  // const page = parseInt(url.searchParams.get("page") ?? "1");
+  const db = new D1Service(context.cloudflare.env.DB);
+  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
-  // This would typically fetch from your database
-  const allEpisodes: Episode[] = [
-    {
-      id: "1",
-      title: "The Future of AI and Machine Learning",
-      description:
-        "In this episode, we explore the latest developments in AI and what they mean for the future of technology and society.",
-      thumbnail: "/api/placeholder/400/240",
-      duration: "45 min",
-      publishedAt: "2024-12-15T00:00:00.000Z",
-      category: "Artificial Intelligence",
-    },
-    // ... add more episodes here
-  ];
+  const episodes = await db.getPublishedEpisodes();
 
-  // Filter by category if specified
-  let filteredEpisodes = category
-    ? allEpisodes.filter((ep) => ep.category === category)
-    : allEpisodes;
-
-  // Sort episodes
-  filteredEpisodes.sort((a, b) => {
-    switch (sort) {
-      case "oldest":
-        return (
-          new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
-        );
-      case "duration":
-        return parseInt(a.duration) - parseInt(b.duration);
-      default: // newest
-        return (
-          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-        );
-    }
+  episodes.forEach((episode) => {
+    episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
   });
 
-  // Pagination
-  const itemsPerPage = 9;
-  const totalPages = Math.ceil(filteredEpisodes.length / itemsPerPage);
-  const currentPage = Math.min(Math.max(1, page), totalPages);
-  const start = (currentPage - 1) * itemsPerPage;
-  const paginatedEpisodes = filteredEpisodes.slice(start, start + itemsPerPage);
-
-  // Get unique categories
-  const categories = Array.from(new Set(allEpisodes.map((ep) => ep.category)));
-
   return Response.json({
-    episodes: paginatedEpisodes,
-    categories,
-    currentPage,
-    totalPages,
-    currentCategory: category,
+    episodes: episodes,
   });
 };
 
 export default function Episodes() {
-  const { episodes, categories, currentPage, totalPages, currentCategory } =
-    useLoaderData<LoaderData>();
-  const [searchParams] = useSearchParams();
+  const { episodes } = useLoaderData<LoaderData>();
 
   return (
     <>
@@ -120,11 +61,11 @@ export default function Episodes() {
               ))}
             </div>
 
-            <Pagination
+            {/* <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               baseUrl="/episodes"
-            />
+            /> */}
           </>
         ) : (
           <div className="text-center py-12">

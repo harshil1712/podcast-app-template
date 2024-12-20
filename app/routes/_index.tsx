@@ -2,6 +2,8 @@ import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { useLoaderData, Link } from "@remix-run/react";
 import Layout from "~/components/Layout";
 import PodcastCard from "~/components/PodcastCard";
+import { D1Service } from "~/utils/db.server";
+import { Episode } from "~/types";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,51 +15,21 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-interface Episode {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  publishedAt: string;
-}
+export const loader: LoaderFunction = async ({ context }) => {
+  const db = new D1Service(context.cloudflare.env.DB);
+  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
-export const loader: LoaderFunction = async () => {
-  const featuredEpisodes: Episode[] = [
-    {
-      id: "1",
-      title: "The Future of AI and Machine Learning",
-      description:
-        "In this episode, we explore the latest developments in AI and what they mean for the future of technology and society.",
-      thumbnail: "/api/placeholder/400/240",
-      duration: "45 min",
-      publishedAt: "2024-12-15T00:00:00.000Z",
-    },
-    {
-      id: "2",
-      title: "Building Scalable Systems",
-      description:
-        "Learn about the principles and practices behind building systems that can scale to millions of users.",
-      thumbnail: "/api/placeholder/400/240",
-      duration: "38 min",
-      publishedAt: "2024-12-10T00:00:00.000Z",
-    },
-    {
-      id: "3",
-      title: "The Evolution of Web Development",
-      description:
-        "From static HTML to modern frameworks - we discuss how web development has evolved and where it's heading.",
-      thumbnail: "/api/placeholder/400/240",
-      duration: "42 min",
-      publishedAt: "2024-12-05T00:00:00.000Z",
-    },
-  ];
+  const episodes = await db.getPublishedEpisodes();
 
-  return Response.json({ featuredEpisodes });
+  episodes.forEach((episode) => {
+    episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
+  });
+
+  return Response.json({ episodes });
 };
 
 export default function Index() {
-  const { featuredEpisodes } = useLoaderData<{ featuredEpisodes: Episode[] }>();
+  const { episodes } = useLoaderData<{ episodes: Episode[] }>();
 
   return (
     <Layout>
@@ -87,7 +59,7 @@ export default function Index() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {featuredEpisodes.map((episode) => (
+          {episodes.map((episode) => (
             <PodcastCard key={episode.id} {...episode} />
           ))}
         </div>

@@ -1,59 +1,37 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
-import { Calendar, Clock, User, Bookmark } from "lucide-react";
+import { Calendar, Clock, User, Bookmark, Share } from "lucide-react";
 import AudioPlayer from "~/components/AudioPlayer";
 import TranscriptSection from "~/components/TranscriptSection";
-import PodcastCard from "~/components/PodcastCard";
-
-interface Episode {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  publishedAt: string;
-  audioUrl: string;
-  transcript: {
-    id: string;
-    timestamp: string;
-    text: string;
-  }[];
-}
+import { Episode } from "~/types";
+import { D1Service } from "~/utils/db.server";
+import { formatDate, formatDuration } from "~/utils/helpers";
 
 interface LoaderData {
   episode: Episode;
   relatedEpisodes: Episode[];
 }
 
-export const loader: LoaderFunction = async ({ params }) => {
-  // This would typically fetch from your database
-  const episode: Episode = {
-    id: params.episodeId!,
-    title: "The Future of AI and Machine Learning",
-    description:
-      "In this episode, we explore the latest developments in AI and what they mean for the future of technology and society. Join us as we discuss the implications of recent breakthroughs and what they mean for developers and businesses alike.",
-    thumbnail: "/api/placeholder/1200/600",
-    duration: "45 min",
-    publishedAt: "2024-12-15T00:00:00.000Z",
-    audioUrl: "/path/to/audio.mp3",
-    transcript: [
-      {
-        id: "1",
-        timestamp: "00:00",
-        text: "Welcome to today's episode where we'll be discussing the future of AI...",
-      },
-      // Add more transcript segments
-    ],
-  };
+export const loader: LoaderFunction = async ({ params, context }) => {
+  const episodeId = params.episodeId;
 
-  const relatedEpisodes: Episode[] = [
-    // Add related episodes
-  ];
+  if (typeof episodeId !== "string") {
+    throw new Error("Invalid episode ID");
+  }
+  const db = new D1Service(context.cloudflare.env.DB);
+  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
-  return Response.json({ episode, relatedEpisodes });
+  const episode = (await db.getEpisode(episodeId)) as Partial<Episode>;
+  if (!episode) {
+    throw new Response("Episode not found", { status: 404 });
+  }
+
+  episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
+
+  return Response.json({ episode });
 };
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   if (!data) {
     return [
       { title: "Episode Not Found - PodcastApp" },
@@ -71,14 +49,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function EpisodeDetail() {
-  const { episode, relatedEpisodes } = useLoaderData<LoaderData>();
+  const { episode } = useLoaderData<LoaderData>();
 
   return (
     <>
       <div className="relative">
         <div className="aspect-w-16 aspect-h-9 md:aspect-h-6 lg:aspect-h-4 max-h-[600px] overflow-hidden">
           <img
-            src={episode.thumbnail}
+            src={episode.thumbnailKey}
             alt={episode.title}
             className="w-full h-full object-cover"
           />
@@ -96,13 +74,11 @@ export default function EpisodeDetail() {
             <div className="flex flex-wrap items-center gap-6 text-white/80">
               <div className="flex items-center gap-2">
                 <Calendar size={20} />
-                <span>
-                  {new Date(episode.publishedAt).toLocaleDateString()}
-                </span>
+                <span>{formatDate(episode.publishedAt)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock size={20} />
-                <span>{episode.duration}</span>
+                <span>{formatDuration(episode.duration)}</span>
               </div>
             </div>
           </div>
@@ -114,46 +90,29 @@ export default function EpisodeDetail() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            <TranscriptSection segments={episode.transcript} />
+            {/* <TranscriptSection segments={episode.transcript} /> */}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Episode Actions */}
             <div className="bg-white rounded-xl shadow-md p-6">
-              <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors mb-4">
+              <button className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-black">
                 <div className="flex items-center justify-center gap-2">
-                  <Bookmark size={20} />
-                  <span>Save Episode</span>
+                  <Share size={20} />
+                  <span>Share Episode</span>
                 </div>
               </button>
-              <div className="flex gap-4">
-                <button className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Share
-                </button>
-                <button className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Download
-                </button>
-              </div>
             </div>
-
-            {/* Related Episodes */}
-            {relatedEpisodes.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Related Episodes</h2>
-                {relatedEpisodes.map((relatedEpisode) => (
-                  <PodcastCard key={relatedEpisode.id} {...relatedEpisode} />
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
       <AudioPlayer
-        audioUrl={episode.audioUrl}
+        src={episode.audioKey}
         title={episode.title}
-        thumbnail={episode.thumbnail}
+        thumbnail={episode.thumbnailKey}
+        duration={episode.duration}
       />
     </>
   );

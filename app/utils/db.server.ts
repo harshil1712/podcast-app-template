@@ -35,7 +35,7 @@ export class D1Service {
   async getEpisode(id: string): Promise<Episode | null> {
     const result = await this.db
       .prepare(
-        "SELECT title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, status, published_at as publishedAt FROM episodes WHERE id = ?"
+        "SELECT id,title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, status, published_at as publishedAt, duration FROM episodes WHERE id = ?"
       )
       .bind(id)
       .first<Episode>();

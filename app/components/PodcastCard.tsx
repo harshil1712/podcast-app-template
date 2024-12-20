@@ -1,29 +1,22 @@
 import { Play } from "lucide-react";
 import { Link } from "@remix-run/react";
-
-interface PodcastCardProps {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  publishedAt: string;
-}
+import { formatDate, formatDuration } from "~/utils/helpers";
+import { Episode } from "~/types";
 
 export default function PodcastCard({
   id,
   title,
   description,
-  thumbnail,
+  thumbnailKey,
   duration,
   publishedAt,
-}: PodcastCardProps) {
+}: Episode) {
   return (
     <Link to={`/episodes/${id}`} className="group">
       <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
         <div className="relative">
           <img
-            src={thumbnail}
+            src={thumbnailKey}
             alt={title}
             className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -41,8 +34,8 @@ export default function PodcastCard({
             {description}
           </p>
           <div className="flex justify-between items-center text-sm text-gray-500">
-            <span>{duration}</span>
-            <span>{new Date(publishedAt).toLocaleDateString()}</span>
+            <span>{formatDuration(duration)}</span>
+            <span>{formatDate(publishedAt)}</span>
           </div>
         </div>
       </div>

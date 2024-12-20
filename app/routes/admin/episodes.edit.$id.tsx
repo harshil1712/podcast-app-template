@@ -5,18 +5,7 @@ import EpisodeForm from "~/components/EpisodeForm";
 import { AdminAuth } from "~/services/auth.server";
 import { D1Service } from "~/utils/db.server";
 import { R2Service } from "~/utils/r2.server";
-
-interface Episode {
-  id: string;
-  title?: string;
-  description?: string;
-  audioKey?: string;
-  thumbnailKey?: string;
-}
-
-interface LoaderData {
-  episode: Episode;
-}
+import { Episode } from "~/types";
 
 interface ActionData {
   errors?: {
@@ -116,7 +105,7 @@ export const action: ActionFunction = async ({ request, params, context }) => {
 };
 
 export default function EditEpisode() {
-  const { episode } = useLoaderData<LoaderData>();
+  const { episode } = useLoaderData<{ episode: Episode }>();
   const actionData = useActionData<ActionData>();
 
   return (
