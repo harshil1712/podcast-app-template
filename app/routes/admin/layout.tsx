@@ -1,7 +1,16 @@
-import { isRouteErrorResponse, Outlet, useRouteError } from "@remix-run/react";
-import { LoaderFunction } from "@remix-run/node";
+import { Outlet } from "@remix-run/react";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import AdminNav from "~/components/AdminNav";
 import { AdminAuth } from "~/services/auth.server";
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: "Admin",
+      description: "Admin dashboard",
+    },
+  ];
+};
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const auth = new AdminAuth(context);

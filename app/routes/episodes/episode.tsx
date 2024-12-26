@@ -1,6 +1,6 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
-import { Calendar, Clock, User, Bookmark, Share } from "lucide-react";
+import { Calendar, Clock, Share } from "lucide-react";
 import AudioPlayer from "~/components/AudioPlayer";
 import TranscriptSection from "~/components/TranscriptSection";
 import { Episode } from "~/types";
@@ -90,7 +90,9 @@ export default function EpisodeDetail() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* <TranscriptSection segments={episode.transcript} /> */}
+            {episode.transcript && (
+              <TranscriptSection transcription={episode.transcript} />
+            )}
           </div>
 
           {/* Sidebar */}

@@ -27,7 +27,7 @@ export const action: ActionFunction = async ({ request, context }) => {
   const description = formData.get("description") as string;
   const audio = formData.get("audio") as File;
   const thumbnail = formData.get("thumbnail") as File;
-  const duration = formData.get("duration") || 0;
+  const duration = (formData.get("duration") || "0").toString();
 
   const errors: ActionData["errors"] = {};
 

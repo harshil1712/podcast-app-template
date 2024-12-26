@@ -153,7 +153,11 @@ export default function AdminEpisodes() {
                           type="submit"
                           name="intent"
                           value="togglePublish"
-                          className="text-green-600 hover:text-green-900"
+                          className={`${
+                            episode.status !== "published"
+                              ? "text-green-600 hover:text-green-900"
+                              : "text-yellow-500 hover:text-yellow-700 "
+                          }`}
                         >
                           {episode.status === "draft" ? (
                             <Share size={18} />

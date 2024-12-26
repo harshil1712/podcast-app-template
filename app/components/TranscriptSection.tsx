@@ -1,17 +1,11 @@
 import { useState } from "react";
 
-interface TranscriptSegment {
-  id: string;
-  timestamp: string;
-  text: string;
-}
-
 interface TranscriptSectionProps {
-  segments: TranscriptSegment[];
+  transcription: string;
 }
 
 export default function TranscriptSection({
-  segments,
+  transcription,
 }: TranscriptSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -23,19 +17,9 @@ export default function TranscriptSection({
           !isExpanded && "max-h-96 overflow-hidden relative"
         }`}
       >
-        {segments.map((segment) => (
-          <div
-            key={segment.id}
-            className="group hover:bg-gray-50 p-2 rounded-lg -mx-2"
-          >
-            <div className="flex items-start gap-4">
-              <button className="text-sm text-gray-500 hover:text-indigo-600">
-                {segment.timestamp}
-              </button>
-              <p className="text-gray-700 leading-relaxed">{segment.text}</p>
-            </div>
-          </div>
-        ))}
+        <div className="group hover:bg-gray-50 p-2 rounded-lg -mx-2">
+          <p className="text-gray-700 leading-relaxed">{transcription}</p>
+        </div>
         {!isExpanded && (
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
         )}

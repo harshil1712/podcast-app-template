@@ -13,21 +13,9 @@ CREATE TABLE episodes (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create plays table to track episode statistics
-CREATE TABLE plays (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  episode_id INTEGER NOT NULL,
-  played_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user_agent TEXT,
-  ip_address TEXT,
-  FOREIGN KEY (episode_id) REFERENCES episodes(id) ON DELETE CASCADE
-);
-
 -- Create indexes for better query performance
-CREATE INDEX idx_episodes_published_at ON episodes(published_at);
 CREATE INDEX idx_episodes_status ON episodes(status);
-CREATE INDEX idx_plays_episode_id ON plays(episode_id);
-CREATE INDEX idx_plays_played_at ON plays(played_at);
+CREATE INDEX idx_episodes_audio_key ON episodes(audio_key);
 
 -- Create trigger to update episodes.updated_at
 CREATE TRIGGER episodes_updated_at 

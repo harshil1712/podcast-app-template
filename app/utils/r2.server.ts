@@ -87,4 +87,8 @@ export class R2Service {
   getImageUrl(key: string) {
     return `${this.publicUrl}/${key}`;
   }
+
+  async getAudio(key: string) {
+    return await this.bucket.get(key);
+  }
 }

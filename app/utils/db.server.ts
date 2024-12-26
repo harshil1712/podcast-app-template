@@ -6,6 +6,7 @@ interface Episode {
   duration: number;
   status?: "draft" | "published";
   publishedAt?: string;
+  transcript?: string;
 }
 
 export class D1Service {
@@ -35,7 +36,7 @@ export class D1Service {
   async getEpisode(id: string): Promise<Episode | null> {
     const result = await this.db
       .prepare(
-        "SELECT id,title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, status, published_at as publishedAt, duration FROM episodes WHERE id = ?"
+        "SELECT id,title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, status, published_at as publishedAt, transcript, duration FROM episodes WHERE id = ?"
       )
       .bind(id)
       .first<Episode>();
@@ -46,7 +47,7 @@ export class D1Service {
   async getEpisodes(): Promise<Episode[]> {
     const result = await this.db
       .prepare(
-        "SELECT id, title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, published_at as publishedAt, status, duration FROM episodes"
+        "SELECT id, title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, published_at as publishedAt, status, duration FROM episodes ORDER BY published_at DESC"
       )
       .all();
     return result.results as unknown as Episode[];
@@ -77,6 +78,11 @@ export class D1Service {
       if (episode.duration !== undefined) {
         updates.push("duration = ?");
         values.push(episode.duration);
+      }
+
+      if (episode.transcript !== undefined) {
+        updates.push("transcript = ?");
+        values.push(episode.transcript);
       }
 
       if (updates.length === 0) {
@@ -130,7 +136,7 @@ export class D1Service {
   async getPublishedEpisodes(): Promise<Episode[]> {
     const result = await this.db
       .prepare(
-        "SELECT id, title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, published_at as publishedAt, duration FROM episodes WHERE status = 'published'"
+        "SELECT id, title, description, audio_key as audioKey, thumbnail_key as thumbnailKey, published_at as publishedAt, duration FROM episodes WHERE status = 'published' ORDER BY published_at DESC"
       )
       .all();
     return result.results as unknown as Episode[];
@@ -142,5 +148,17 @@ export class D1Service {
       .prepare("SELECT COUNT(*) as total FROM episodes")
       .run();
     return result.results[0].total as number;
+  }
+
+  // Store transcription
+  async upsertTranscript(transcript: string, audioKey: string): Promise<void> {
+    try {
+      await this.db
+        .prepare("UPDATE episodes SET transcript = ? WHERE audio_key = ?")
+        .bind(transcript, audioKey)
+        .run();
+    } catch (error: any) {
+      throw new Error(`Failed to create transcript: ${error.message}`);
+    }
   }
 }

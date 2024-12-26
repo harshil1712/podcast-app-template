@@ -50,6 +50,8 @@ export const action: ActionFunction = async ({ request, params, context }) => {
   const description = formData.get("description");
   const audio = formData.get("audio") as File;
   const thumbnail = formData.get("thumbnail") as File;
+  const duration = (formData.get("duration") || "0").toString();
+  const transcript = formData.get("transcript") as string;
 
   const errors: ActionData["errors"] = {};
 
@@ -92,6 +94,10 @@ export const action: ActionFunction = async ({ request, params, context }) => {
       }
     }
 
+    if (transcript && typeof transcript === "string") {
+      updateData.transcript = transcript;
+    }
+
     await db.updateEpisode(episodeId, updateData);
 
     return redirect("/admin/episodes");
@@ -119,6 +125,7 @@ export default function EditEpisode() {
             initialData={{
               title: episode.title || "",
               description: episode.description || "",
+              transcript: episode.transcript || null,
             }}
           />
           {actionData?.errors && (

@@ -6,6 +6,7 @@ interface EpisodeFormProps {
   initialData?: {
     title: string;
     description: string;
+    transcript: string | null;
   };
 }
 
@@ -89,7 +90,7 @@ export default function EpisodeForm({ initialData }: EpisodeFormProps) {
           name="title"
           id="title"
           defaultValue={initialData?.title}
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700"
           required
         />
       </div>
@@ -106,7 +107,7 @@ export default function EpisodeForm({ initialData }: EpisodeFormProps) {
           id="description"
           rows={4}
           defaultValue={initialData?.description}
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700"
           required
         />
       </div>
@@ -234,11 +235,34 @@ export default function EpisodeForm({ initialData }: EpisodeFormProps) {
         </div>
       </div>
 
+      <div className="border-t border-gray-200 pt-8">
+        <label
+          htmlFor="transcript"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Transcript
+        </label>
+        {initialData?.transcript !== undefined ? (
+          <textarea
+            name="transcript"
+            id="transcript"
+            rows={20}
+            defaultValue={initialData.transcript || ""}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700"
+            placeholder="No transcript available. Paste the transcript here."
+          />
+        ) : (
+          <p className="text-sm text-gray-500">
+            Transcript will be generated automatically. You can edit it later.
+          </p>
+        )}
+      </div>
+
       <div className="flex justify-end gap-4">
         <button
           type="button"
           onClick={() => window.history.back()}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-500"
         >
           Cancel
         </button>

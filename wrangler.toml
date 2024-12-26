@@ -22,3 +22,9 @@ id = "d024427f6a7842568ef0093ebed6ff2c"
 binding = "DB"
 database_name = "podcast-app"
 database_id = "5c321049-fd34-4ce3-9f88-b339bbc26c99"
+
+[ai]
+binding = "AI"
+
+[[queues.consumers]]
+queue = "podcast-demo"
