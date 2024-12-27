@@ -1,5 +1,5 @@
 {
-  "name": "puddlecast-template",
+  "name": "podcast-app-template",
   "private": true,
   "sideEffects": false,
   "type": "module",

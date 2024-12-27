@@ -1,43 +1,32 @@
-# Welcome to Remix + Cloudflare Workers!
+# Podcast App Template
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
+Share and manage your podcasts.
 
-## Development
+## Built with
 
-Run the dev server:
+- [Cloudflare Workers Assets](https://developers.cloudflare.com/workers/static-assets/): host the application
+- [Cloudflare R2](https://developers.cloudflare.com/r2/): store audio and image files
+- [Cloudflare D1](https://developers.cloudflare.com/d1/): store information of the podcast episode like title, description, transcript, etc.
+- [Cloudflare Queues](https://developers.cloudflare.com/queues/): message queue to de-couple the transcription creation process off the main thread
+- [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/): create transcription of the podcast episode
+- [Remix](https://remix.run/docs): framework used to build the application
 
-```sh
-npm run dev
-```
+## How it works
 
-To run Wrangler:
+This is a Podcast application that allows you to share and manage your podcast episodes. As an admin (`/admin`), you can add new podcast episodes, edit the existing episodes, and publish-unpublish these episodes. The episode audio and thubmnail file gets stored in [Cloudflare R2](https://developers.cloudflare.com/r2/). The project is configured to use [R2 Event notifications](https://developers.cloudflare.com/r2/buckets/event-notifications/) which sends a message to a [Cloudflare Queue](https://developers.cloudflare.com/queues/) when a new audio file gets added. The Queue uses [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) to generate the transcript of this audio file. All the information regarding the episode like title, description, published date, creation date, updation date, transcript, status (published, draft), duration, audio key, and thumbnail key are stored in a table in [Cloudflare D1](https://developers.cloudflare.com/d1/).
 
-```sh
-npm run build
-npm start
-```
+A user can view the episodes, and listen to the episode of their choice.
 
-## Typegen
+## Develop locally
 
-Generate types for your Cloudflare bindings in `wrangler.toml`:
-
-```sh
-npm run typegen
-```
-
-You will need to rerun typegen whenever you make changes to `wrangler.toml`.
-
-## Deployment
-
-If you don't already have an account, then [create a cloudflare account here](https://dash.cloudflare.com/sign-up) and after verifying your email address with Cloudflare, go to your dashboard and set up your free custom Cloudflare Workers subdomain.
-
-Once that's done, you should be able to deploy your app:
+Use this template with [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the create-cloudflare CLI):
 
 ```sh
-npm run deploy
+npm create cloudflare@latest -- --template=cloudflare/templates/podcast-app-template
 ```
 
-## Styling
+Rename `.dev.vars.example` to `.dev.vars` and update the values.
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+## Preview Deployment
+
+A live public deployment of this template is available at 
