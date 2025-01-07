@@ -16,7 +16,7 @@ export default function PodcastCard({
       <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
         <div className="relative">
           <img
-            src={thumbnailKey}
+            src={`thumbnail/${thumbnailKey}`}
             alt={title}
             className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
           />

@@ -4,7 +4,6 @@ interface Env {
   admin: KVNamespace;
   ADMIN_EMAIL: string;
   COOKIE_SESSION_SECRET: string;
-  R2_PUBLIC_URL: string;
   BUCKET: R2Bucket;
   DB: D1Database;
   AI: Ai;

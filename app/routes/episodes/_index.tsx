@@ -1,7 +1,6 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import PodcastCard from "~/components/PodcastCard";
-import Pagination from "~/components/Pagination";
 import { Episode } from "~/types";
 import { D1Service } from "~/utils/db.server";
 
@@ -21,16 +20,9 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  // const url = new URL(request.url);
-  // const page = parseInt(url.searchParams.get("page") ?? "1");
   const db = new D1Service(context.cloudflare.env.DB);
-  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
   const episodes = await db.getPublishedEpisodes();
-
-  episodes.forEach((episode) => {
-    episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
-  });
 
   return Response.json({
     episodes: episodes,
@@ -60,12 +52,6 @@ export default function Episodes() {
                 <PodcastCard key={episode.id} {...episode} />
               ))}
             </div>
-
-            {/* <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              baseUrl="/episodes"
-            /> */}
           </>
         ) : (
           <div className="text-center py-12">

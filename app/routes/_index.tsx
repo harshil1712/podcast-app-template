@@ -17,13 +17,8 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async ({ context }) => {
   const db = new D1Service(context.cloudflare.env.DB);
-  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
   const episodes = await db.getPublishedEpisodes();
-
-  episodes.forEach((episode) => {
-    episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
-  });
 
   return Response.json({ episodes });
 };

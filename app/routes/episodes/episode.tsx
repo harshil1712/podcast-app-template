@@ -19,14 +19,11 @@ export const loader: LoaderFunction = async ({ params, context }) => {
     throw new Error("Invalid episode ID");
   }
   const db = new D1Service(context.cloudflare.env.DB);
-  const r2_public_url = context.cloudflare.env.R2_PUBLIC_URL;
 
   const episode = (await db.getEpisode(episodeId)) as Partial<Episode>;
   if (!episode) {
     throw new Response("Episode not found", { status: 404 });
   }
-
-  episode.thumbnailKey = `${r2_public_url}/${episode.thumbnailKey}`;
 
   return Response.json({ episode });
 };
@@ -56,7 +53,7 @@ export default function EpisodeDetail() {
       <div className="relative">
         <div className="aspect-w-16 aspect-h-9 md:aspect-h-6 lg:aspect-h-4 max-h-[600px] overflow-hidden">
           <img
-            src={episode.thumbnailKey}
+            src={`../thumbnail/${episode.thumbnailKey}`}
             alt={episode.title}
             className="w-full h-full object-cover"
           />
@@ -113,7 +110,7 @@ export default function EpisodeDetail() {
       <AudioPlayer
         src={episode.audioKey}
         title={episode.title}
-        thumbnail={episode.thumbnailKey}
+        thumbnail={`../thumbnail/${episode.thumbnailKey}`}
         duration={episode.duration}
       />
     </>

@@ -10,10 +10,7 @@ export interface R2Object {
 }
 
 export class R2Service {
-  constructor(
-    private readonly bucket: R2Bucket,
-    private readonly publicUrl?: string
-  ) {}
+  constructor(private readonly bucket: R2Bucket) {}
 
   async uploadAudio(audio: File): Promise<R2Object> {
     if (!audio) {
@@ -84,8 +81,8 @@ export class R2Service {
     }
   }
 
-  getImageUrl(key: string) {
-    return `${this.publicUrl}/${key}`;
+  async getImage(key: string) {
+    return await this.bucket.get(key);
   }
 
   async getAudio(key: string) {
