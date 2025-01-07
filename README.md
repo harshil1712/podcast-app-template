@@ -25,8 +25,6 @@ Use this template with [C3](https://developers.cloudflare.com/pages/get-started/
 npm create cloudflare@latest -- --template=cloudflare/templates/podcast-app-template
 ```
 
-Rename `.dev.vars.example` to `.dev.vars` and update the values.
-
 ## Preview Deployment
 
 A live public deployment of this template is available at 

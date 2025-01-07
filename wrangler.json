@@ -15,12 +15,6 @@
       "bucket_name": "puddlecast"
     }
   ],
-  "kv_namespaces": [
-    {
-      "binding": "admin",
-      "id": "d024427f6a7842568ef0093ebed6ff2c"
-    }
-  ],
   "d1_databases": [
     {
       "binding": "DB",
